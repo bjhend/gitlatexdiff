@@ -6,7 +6,7 @@ Apply `latexdiff` to a Git repository containing a LaTeX project.
 
 ## Purpose
 
-[`latexdiff`](www.ctan.org/pkg/latexdiff) is a LaTeX tool to render a PDF file showing the differences between two LaTeX files. This script applies `latexdiff` on two revisions of a LaTeX file in a Git repository. Before that, it applies another script to recursively resolve `\include` and `\input` directives in the LaTeX code, because `latexdiff` does not consider those.
+[`latexdiff`](https://www.ctan.org/pkg/latexdiff) is a LaTeX tool to render a PDF file showing the differences between two LaTeX files. This script applies `latexdiff` on two revisions of a LaTeX file in a Git repository. Before that, it applies another script to recursively resolve `\include` and `\input` directives in the LaTeX code, because `latexdiff` does not consider those.
 
 
 ## Contact
@@ -35,6 +35,8 @@ The Python script to actually create the rendered diff.
 
 #### Options
 
+Call `make-diff.py` with option `--help` to get the current list of command line options and their defaults if applicable.
+
 ##### Mandatory
 
 * `-m`, `--main`: Name of the main LaTeX file whose revisions should be compared. It has to reside in the respective Git repository containing the revisions to diff. May be given with path if `make-diff.py` is called from outside.
@@ -45,8 +47,6 @@ The Python script to actually create the rendered diff.
 * `-n`, `--new-rev`: Newer revision to compare with. If not given current HEAD of the Git repository will be used.
 * `-d`, `--diff-name`: Name of the final diff file. '`PDF`' will be appended if necessary. Call `make-diff.py` with option `--help` to see its default.
 * `-v`, `--overwrite`: If not given `make-diff.py` refuses to overwite an existing diff file.
-
-Call `make-diff.py` with option `--help` to get the current list of command line options and their defaults if applicable.
 
 
 ### `flatten_latex.py`
