@@ -6,7 +6,7 @@ Apply `latexdiff` to a Git repository containing a LaTeX project.
 
 ## Purpose
 
-[`latexdiff`](www.ctan.org/pkg/latexdiff) is a LaTeX tool to render a PDF file showing the differences betweem two LaTeX files. This script applies latexdiff on two revisions of a LaTeX file in a Git repository. Before that, it applies another script to recursively resolve `\include` and `\input` directives in the LaTeX code, because `latexdiff` does not consider those.
+[`latexdiff`](www.ctan.org/pkg/latexdiff) is a LaTeX tool to render a PDF file showing the differences between two LaTeX files. This script applies `latexdiff` on two revisions of a LaTeX file in a Git repository. Before that, it applies another script to recursively resolve `\include` and `\input` directives in the LaTeX code, because `latexdiff` does not consider those.
 
 
 ## Contact
@@ -22,8 +22,8 @@ For questions, remarks, etc. contact me via my Github account `bjhend`.
 ### Prerequesites
 
 * LaTeX must be installed including the tools
-    * pdflatex
-    * latexdiff
+    * `pdflatex`
+    * `latexdiff`
 * Python3 is available
 
 
@@ -31,16 +31,16 @@ For questions, remarks, etc. contact me via my Github account `bjhend`.
 
 ### `make-diff.py`
 
-The Python3 script to actually create the rendered diff.
+The Python script to actually create the rendered diff.
 
 #### Options
 
-Mandatory:
+##### Mandatory
 
 * `-m`, `--main`: Name of the main LaTeX file whose revisions should be compared. It has to reside in the respective Git repository containing the revisions to diff. May be given with path if `make-diff.py` is called from outside.
 * `-o`, `--old-rev`: Reference of the old revision to compare with. Could be given in any form accepted by `git checkout`, for example as branch name, SHA1 or tag name.
 
-Optional:
+##### Optional
 
 * `-n`, `--new-rev`: Newer revision to compare with. If not given current HEAD of the Git repository will be used.
 * `-d`, `--diff-name`: Name of the final diff file. '`PDF`' will be appended if necessary. Call `make-diff.py` with option `--help` to see its default.
