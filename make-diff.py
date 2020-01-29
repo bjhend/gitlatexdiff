@@ -218,6 +218,7 @@ class Diff():
 			os.replace(diffPdfPathname, self.config.diffNameAbs)
 		except FileNotFoundError:
 			print("No diff created. See log files for possible cause:", self.config.logNameAbs)
+			print("Hint: It may help exclude LaTeX commands with for example \"-l 'exclude-textcmd=title,.*section,chapter'\"")
 
 		# Clean up temporaries
 		os.remove(oldMainFilename)
