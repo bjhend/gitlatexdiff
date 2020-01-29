@@ -44,9 +44,16 @@ Call `make-diff.py` with option `--help` to get the current list of command line
 
 ##### Optional
 
+Call `make-diff.py --help` to see the defaults of the following options.
+
 * `-n`, `--new-rev`: Newer revision to compare with. If not given current HEAD of the Git repository will be used.
-* `-d`, `--diff-name`: Name of the final diff file. '`PDF`' will be appended if necessary. Call `make-diff.py` with option `--help` to see its default.
+* `-d`, `--diff-name`: Name of the final diff file. '`PDF`' will be appended if necessary.
 * `-w`, `--overwrite`: If not given `make-diff.py` refuses to overwite an existing diff file.
+
+For technical reasons values to the following options have to be given without leading dashes. Dashes are prepended as required by the respective commands.
+
+* `-l`, `--latexdiff-options`: Arbitrary number of options passed to `latexdiff` call. Pass without any value to turn off default.
+* `-p`, `--pdflatex-options`: Arbitrary number of options passed to `pdflatex` call. Pass without any value to turn off default.
 
 
 ### `flatten_latex.py`

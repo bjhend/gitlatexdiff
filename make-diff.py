@@ -47,9 +47,9 @@ class Configuration():
 
 		## Hard coded config values
 		# Options given to latexdiff
-		self.latexdiffOptions = ['--append-textcmd=hint.*,todo']
+		self.latexdiffOptions = self._prependPrefix('--', args.latexdiff_options)
 		# Options given to pdflatex
-		self.pdflatexOptions = ['-interaction=batchmode']
+		self.pdflatexOptions = self._prependPrefix('-', args.pdflatex_options)
 		# Number of successive calls of pdflatex to achieve the final result
 		self.numTexRounds = 3
 		self.latexExtension = '.tex'
@@ -72,6 +72,10 @@ class Configuration():
 		currRootname, currExt = os.path.splitext(pathname)
 		return pathname if (currExt == extension) else (pathname + extension)
 
+	def _prependPrefix(self, prefix, options):
+		'''Prepend prefix to all elements of options tuple'''
+		return list(map(lambda opt: prefix + opt, options))
+
 	def _parseArgs(self):
 		'''Parse command line arguments'''
 		parser = argparse.ArgumentParser(description='Make a LaTeX diff for two Git revisions of a LaTeX project')
@@ -81,6 +85,10 @@ class Configuration():
 		parser.add_argument('-o', '--old-rev', required=True, help='Ref to old revision to for diff (required)')
 		parser.add_argument('-d', '--diff-name', default='diff', help='Name for final diff file (default: %(default)s)')
 		parser.add_argument('-w', '--overwrite', action='store_true', help='Silently overwrite existing diff (default: %(default)s)?')
+		parser.add_argument('-l', '--latexdiff-options', nargs='*', default=['append-textcmd=hint.*,todo'],
+		                    help='Options passed to latexdiff without leading dashes (default: %(default)s)')
+		parser.add_argument('-p', '--pdflatex-options', nargs='*', default=['interaction=batchmode'],
+		                    help='Options passed to pdflatex without leading dashes (default: %(default)s)')
 
 		return parser.parse_args()
 
