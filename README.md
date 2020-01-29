@@ -46,7 +46,7 @@ Call `make-diff.py` with option `--help` to get the current list of command line
 
 * `-n`, `--new-rev`: Newer revision to compare with. If not given current HEAD of the Git repository will be used.
 * `-d`, `--diff-name`: Name of the final diff file. '`PDF`' will be appended if necessary. Call `make-diff.py` with option `--help` to see its default.
-* `-v`, `--overwrite`: If not given `make-diff.py` refuses to overwite an existing diff file.
+* `-w`, `--overwrite`: If not given `make-diff.py` refuses to overwite an existing diff file.
 
 
 ### `flatten_latex.py`
