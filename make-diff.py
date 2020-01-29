@@ -33,6 +33,9 @@ import flatten_latex
 def callCommand(args, cwd=None):
 	'''Call args as shell command and return its stdout (NOT stderr)
 
+	Raises subprocess.CalledProcessError if the command returns with non-zero
+	exit code.
+
 	cwd  optional working directory
 	'''
 	result = subprocess.run(args, cwd=cwd, stdout=subprocess.PIPE, check=True)
@@ -54,11 +57,13 @@ class Configuration():
 		self.numTexRounds = 3
 		self.latexExtension = '.tex'
 		self.pdfExtension = '.pdf'
+		self.logExtension = '.log'
 
 		## Values derived from command line or other sources
 		self.mainFileAbs = self._makeAbsPathWithExtension(args.main, self.latexExtension)
 		self.mainFileDir = os.path.dirname(self.mainFileAbs)
 		self.diffNameAbs = self._makeAbsPathWithExtension(args.diff_name, self.pdfExtension)
+		self.logNameAbs = self._makeAbsPathWithExtension(args.diff_name, self.logExtension)
 		# Bail out if diffNameAbs exists and no --overwrite given
 		if (not args.overwrite) and os.path.exists(self.diffNameAbs):
 			sys.exit("Destination file " + self.diffNameAbs + " exists. Set --overwrite to overwrite it.")
@@ -80,10 +85,10 @@ class Configuration():
 		'''Parse command line arguments'''
 		parser = argparse.ArgumentParser(description='Make a LaTeX diff for two Git revisions of a LaTeX project')
 
-		parser.add_argument('-m', '--main', required=True, help='Main LaTeX file (required)')
+		parser.add_argument('-m', '--main', required=True, help='(Path)name of main LaTeX file (required)')
 		parser.add_argument('-n', '--new-rev', default='HEAD', help='Ref to new revision to for diff (default: %(default)s)')
 		parser.add_argument('-o', '--old-rev', required=True, help='Ref to old revision to for diff (required)')
-		parser.add_argument('-d', '--diff-name', default='diff', help='Name for final diff file (default: %(default)s)')
+		parser.add_argument('-d', '--diff-name', default='diff', help='(Path)name for final diff file (default: %(default)s)')
 		parser.add_argument('-w', '--overwrite', action='store_true', help='Silently overwrite existing diff (default: %(default)s)?')
 		parser.add_argument('-l', '--latexdiff-options', nargs='*', default=['append-textcmd=hint.*,todo'],
 		                    help='Options passed to latexdiff without leading dashes (default: %(default)s)')
@@ -196,19 +201,29 @@ class Diff():
 			diffTexFile.write(diffTex)
 			diffTexFilename = diffTexFile.name
 
+		diffBasicFilename = os.path.splitext(diffTexFilename)[0]
+		diffPdfPathname = diffBasicFilename + self.config.pdfExtension
+		diffLogPathname = diffBasicFilename + self.config.logExtension
 		# Call pdflatex sufficiently often on diff
 		for i in range(self.config.numTexRounds):
-			callCommand(['pdflatex'] + self.config.pdflatexOptions + [diffTexFilename], cwd=self.config.mainFileDir)
+			try:
+				callCommand(['pdflatex'] + self.config.pdflatexOptions + [diffTexFilename], cwd=self.config.mainFileDir)
+			except subprocess.CalledProcessError as cpe:
+				# Sometimes a pdfltex call returns an error but still works
+				pass
 
-		# Move resulting PDF to initial dir
-		diffPdfPathname = os.path.splitext(diffTexFilename)[0] + self.config.pdfExtension
-		os.replace(diffPdfPathname, self.config.diffNameAbs)
+		# Move results to initial dir
+		os.replace(diffLogPathname, self.config.logNameAbs)
+		try:
+			os.replace(diffPdfPathname, self.config.diffNameAbs)
+		except FileNotFoundError:
+			print("No diff created. See log files for possible cause:", self.config.logNameAbs)
 
 		# Clean up temporaries
 		os.remove(oldMainFilename)
 		os.remove(newMainFilename)
 		# Remove all temporary pdflatex files
-		for temp in glob.iglob(os.path.splitext(diffTexFilename)[0] + '*'):
+		for temp in glob.iglob(diffBasicFilename + '*'):
 			os.remove(temp)
 
 
