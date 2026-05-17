@@ -15,7 +15,11 @@
 # limitations under the License.
 
 
-__pycache__/
-*.egg-info
-.python-version
+# Dynamic type checking with beartype
+from beartype.claw import beartype_this_package
+beartype_this_package()
+
+
+from .make_diff import main
+from .flatten_latex import flattenCommand
 

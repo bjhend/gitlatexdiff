@@ -1,59 +1,64 @@
 
 # Git-LaTeX-Diff
 
-Apply `latexdiff` to a Git repository containing a LaTeX project.
+Make a rendered diff of two versions of a LaTeX document.
 
 
 ## Purpose
 
-[`latexdiff`](https://www.ctan.org/pkg/latexdiff) is a LaTeX tool to render a PDF file showing the differences between two LaTeX files. This script applies `latexdiff` on two revisions of a LaTeX file in a Git repository. Before that, it applies another script to recursively resolve `\include` and `\input` directives in the LaTeX code, because `latexdiff` does not consider those.
+[`latexdiff`](https://www.ctan.org/pkg/latexdiff) is a LaTeX tool to create a diff of two LaTeX documents, which shows deletions and additions as red strike-through text and additions as blue underlined text when compiled to PDF. However, `latexdiff` has some major limitations.
+
+This Python script `gitlatexdiff` extends `latexdiff` in several ways:
+
+* It works with a Git repo such that it compares the current state or a given commit with an earlier commit
+* It resolves `\include` and `\input` commands like LaTeX does
+* It calls `pdflatex` to render the final PDF
+
+In addition the `\include` and `\input` resolving itself can be called as standalone script.
 
 
-## Contact
 
-For questions, remarks, etc. contact me via my Github account `bjhend`.
+## Caveats
+
+* While `\include` and `\input` are resolved from the respective git revisions, other includes like figures are resolved when compiling the diff. This is done in the new revision. So if the old version includes figures that are missing or renamed in the new revision they will be missing in the diff PDF as well.
+* There is no diff of the bibliography and other generated parts.
+* When using uncommitted changes as new version the rendering has to take place in the documents work directory. This may leave temporary files and have other unexpected side effects. However, if everything is committed or dedicated Git revisions are compared all processing is done in temporary directories that are cleaned up.
 
 
-## Usage
-
-1. Make sure the following prerequesites are fulfilled
-1. Call `make-diff.py` (see below)
 
 ### Prerequesites
 
 * LaTeX must be installed including the tools
     * `pdflatex`
     * `latexdiff`
-* Python3 is available
+* Python3 is available with at least the version set in `pyproject.toml`
 
 
-## Scripts
 
-### `make-diff.py`
+## Usage
 
-The Python script to actually create the rendered diff.
+The easiest way is to apply the Python tool `uv`, which we describe here. Likely `poetry` will work as well.
 
-#### Options
+Change to the directory where you cloned the gitlatexdiff project and call
 
-Call `make-diff.py` with option `--help` to get the current list of command line options and their defaults if applicable.
+```bash
+uv sync
+```
 
-##### Mandatory
+to install all dependencies and create a virtual environment.
 
-* `-m`, `--main`: Name of the main LaTeX file whose revisions should be compared. It has to reside in the respective Git repository containing the revisions to diff. May be given with path if `make-diff.py` is called from outside.
-* `-o`, `--old-rev`: Reference of the old revision to compare with. Could be given in any form accepted by `git checkout`, for example as branch name, SHA1 or tag name.
+To run the script call
 
-##### Optional
+```bash
+uv run gitlatexdiff <options>
+```
 
-Call `make-diff.py --help` to see the defaults of the following options.
+To run the script to flatten a LeTeX file standalone call
 
-* `-n`, `--new-rev`: Newer revision to compare with. If not given current HEAD of the Git repository will be used.
-* `-d`, `--diff-name`: Name of the final diff file. '`PDF`' will be appended if necessary. If not path is given it will be put in the current directory. The log file of the last `pdflatex` call will be stored beside this file.
-* `-w`, `--overwrite`: If not given `make-diff.py` refuses to overwite an existing diff file.
+```bash
+uv run flattenlatex <options>
+```
 
-For technical reasons values to the following options have to be given without leading dashes. Dashes are prepended as required by the respective commands.
-
-* `-l`, `--latexdiff-options`: Arbitrary number of options passed to `latexdiff` call. Pass without any value to turn off default.
-* `-p`, `--pdflatex-options`: Arbitrary number of options passed to `pdflatex` call. Pass without any value to turn off default.
 
 #### Tips
 
@@ -66,8 +71,41 @@ Here, LaTeX commands `\title`, `\chapter`, and all ending in `section` are exclu
 Note, that in this case the `'append-textcmd=hint.*,todo'` is the default for option `-l`, which needs to be set explicitely if `-l` is given.
 
 
-### `flatten_latex.py`
+### Options
 
-Python module with a function to recusively resolve `\include` and `\input` directives. `make-diff.py` uses it for both revisions of the input file.
+Call `gitlatexdiff` with option `--help` to get the current list of command line options and their defaults if applicable.
 
-The module can also be called directly with the input file content provided on `stdin` while the result will be written to `stdout`.
+#### Mandatory options
+
+* `-m`, `--main`: Name of the main LaTeX file whose versions should be compared. It has to reside in the respective Git repository containing the versions to compare. May be given with path if `gitlatexdiff` is called from outside the LaTeX project directory.
+
+#### Optional
+
+All other command line options are optional.
+
+Call `gitlatexdiff --help` to see the defaults of the following options.
+
+* `-n`, `--new-rev`: Newer revision to compare with. If not given the current state of the work files is used, which will be the HEAD revision if all files are committed or else the work files.
+* `-o`, `--old-rev`: Older revision to compare with. If not given either the revision before `--new-rev` is used or the HEAD revision if `--new-rev` is also not given and there are uncommitted changes.
+* `--old-main`: Name of the old main LaTeX file which should be compared. Defaults to `--main`.
+* `-d`, `--diff-name`: Name of the final diff file. '`.pdf`' will be appended if necessary. The log file of the last `pdflatex` call will be stored beside this file.
+* `-w`, `--overwrite`: If not given `gitlatexdiff` refuses to overwite an existing diff file.
+* `--num-rounds`: Number of calls to `pdflatex` when compiling the diff.
+
+The following options are passed to `latexdiff` or `pdflatex` respectively. For technical reasons values have to be given without leading dashes. Dashes are prepended as required by the respective command.
+
+* `-l`, `--latexdiff-options`: Arbitrary number of options passed to `latexdiff` call. Pass without any value to turn off the default.
+* `-p`, `--pdflatex-options`: Arbitrary number of options passed to `pdflatex` call. Pass without any value to turn off the default.
+
+
+### `flattenlatex`
+
+Python module to recusively resolve `\include` and `\input` commands in a LaTeX document. `gitlatexdiff` uses it on both versions of the input file.
+
+Call `uv run flattenlatex --help` to see its options to set input and output file. The input file is mandatory, because included files are drawn from its directory. The output file is optional, if omitted, `stdout` will be used.
+
+
+
+## Contributing
+
+Create issues or a pull requests to point out bugs or improvements.
