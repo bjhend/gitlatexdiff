@@ -1,11 +1,6 @@
 
 # Changelog
 
-## 0.1.0
-
-Initial version
-
-
 ## 0.2.0
 
 * Refactoring to modern Python standards
@@ -18,3 +13,6 @@ Initial version
 * Add type checking
 
 
+## 0.1.0
+
+Initial version
