@@ -47,19 +47,24 @@ defaultPdflatexOptions = ['interaction=batchmode']
 
 
 def callCommand(args:list[str], cwd:pl.Path|None=None) -> str:
-    '''Call args as shell command and return its stdout (NOT stderr)
+    """Call args as shell command and return its stdout (NOT stderr)
 
-    Raises subprocess.CalledProcessError if the command returns with non-zero
-    exit code.
+    Args:
+        cwd: optional working directory
 
-    cwd  optional working directory
-    '''
+    Raises:
+        subprocess.CalledProcessError: if the command returns with non-zero
+                                       exit code
+
+    Returns:
+        stdout of the command
+    """
     result = subprocess.run(args, cwd=cwd, stdout=subprocess.PIPE, check=True)
     return result.stdout.decode().strip()
 
 
 class Configuration():
-    '''Configuration values either from parsing command line or hard coded'''
+    """Configuration values either from parsing command line or hard coded"""
 
     def __init__(self):
         """Get and preprocess command line arguments"""
@@ -89,11 +94,23 @@ class Configuration():
         self.oldRevision = args.old_rev
 
     def _prependPrefix(self, prefix:str, options:list[str]) -> list[str]:
-        '''Prepend prefix to all elements of options tuple'''
+        """Prepend prefix to all elements of options tuple
+
+        Args:
+            prefix:  string to prepend to all elements of options
+            options: iterable of strings to prepend prefix to
+
+        Returns:
+            options with prefix prepended
+        """
         return [ prefix + opt for opt in options ]
 
     def _parseArgs(self) -> argparse.Namespace:
-        '''Parse command line arguments'''
+        """Parse command line arguments
+
+        Returns:
+            result of argparse.ArgumentParser.parse_args()
+        """
         parser = argparse.ArgumentParser(description='Make a LaTeX diff for two Git revisions of a LaTeX project')
 
         parser.add_argument('-m', '--main', type=pl.Path, required=True, help='Main LaTeX file (required)')
@@ -114,21 +131,42 @@ class Configuration():
 
 
 class GitRepo():
-    '''Wrapper for all Git commands
+    """Wrapper for all Git commands
 
     We do not apply GitPython or other third party packages to be as portable
     as possible. Instead we call the Git commands directly.
-    '''
+    """
 
     def __init__(self, config:Configuration):
+        """Init GitRepo with given config
+
+        Args:
+            config: configuration with main file path
+        """
         self.repoDir = pl.Path(self._callGit(['rev-parse', '--show-toplevel'], config.mainFileAbs.parent))
 
     def getSha1(self, committish:str) -> str:
-        '''Return SHA1 of committish'''
-        return self._callGit(['rev-parse', committish])
+        """Return SHA1 of committish
+
+        Args:
+            committish: any string that Git recognizes as a commit reference: HEAD,
+                        branch, tag, or their parents
+
+        Returns:
+            SHA1 of the referenced commit or `None` if it cannot be resolved
+        """
+
+        try:
+            return self._callGit(['rev-parse', committish])
+        except subprocess.CalledProcessError:
+            return None
 
     def isDirty(self) -> bool:
-        '''Return True if uncommitted changes or new non-ignored files are present'''
+        """Check if uncommitted changes or new non-ignored files are present
+
+        Returns:
+            `True` if there are uncommitted files
+        """
         try:
             # Returns with non-zero exitcode if a committed file is altered
             self._callGit(['diff-index', '--quiet', 'HEAD', '--'])
@@ -143,13 +181,18 @@ class GitRepo():
     def worktree(self, sha1:str|None=None) -> Generator[pl.Path]:
         """Check out sha1 in a temporary worktree and finally cleanup or return repo dir
 
-        This is a contextmanager, so call it in a 'with' statement.
+        This is a contextmanager, so call it in a `with` statement.
 
-        If sha1 is given check it out in a temporary worktree and remove the
-        worktree on exit of the context. If sha1 is None return the repo dir
+        If `sha1` is given check it out in a temporary worktree and remove the
+        worktree on exit of the context. If `sha1` is `None` return the repo dir
         itself.
 
-        return: pathlib.Path of the work files
+        Args:
+            sha1: SHA1 of the commit to check out in the worktree, if `None` return
+                  the repo dir itself
+
+        Returns:
+            path to the work files
         """
 
         if not sha1:
@@ -165,7 +208,21 @@ class GitRepo():
                 self._callGit(['worktree', 'remove', str(workDirPath)])
 
     def _callGit(self, args:list[str], workingDir:pl.Path|None=None) -> str:
-        '''Call a Git command in the repo or workingDir if given'''
+        """Call a Git command in the repo or workingDir if given
+
+        Prepends `git` to the given args and calls callCommand() with them.
+
+        Args:
+            args:       command line arguments for the Git command (without `git` itself)
+            workingDir: optional dir to execute the command in, if ommitted use
+                        the repo dir
+
+        Return:
+            stdout of the command
+
+        Raises:
+            see callCommand()
+        """
         if workingDir is None:
             workingDir = self.repoDir
         return callCommand(['git'] + args, cwd=workingDir)
@@ -173,9 +230,16 @@ class GitRepo():
 
 
 class Diff():
-    '''Class to create the diff'''
+    """Class to create the diff"""
 
     def __init__(self, config:Configuration, gitRepo:GitRepo):
+        """Init
+
+        Args:
+            config:  configuration
+            gitRepo: Git repo
+        """
+
         self.config = config
         self.gitRepo = gitRepo
         self.mainFileRelative = self.config.mainFileAbs.relative_to(self.gitRepo.repoDir)
@@ -203,7 +267,7 @@ class Diff():
 
     @contextlib.contextmanager
     def _flatFile(self, sha1:str|None, mainFileRelative:pl.Path) -> Generator[pl.Path]:
-        '''Flatten mainFileRelative in the given sha1 revision and return its path
+        """Flatten mainFileRelative in the given sha1 revision and return its path
 
         This method is a contextmanager. So it needs to be called in a
         with-statement. On leaving the context the returned file and the worktree
@@ -214,11 +278,13 @@ class Diff():
         If sha1 is not None flattening is done in an exclusive worktree to avoid
         interfering with the repo.
 
-        sha1:             revision to check out, if None use the repo itself
-        mainFileRelative: relative path to the main file in the repo
+        Args:
+            sha1:             revision to check out, if None use the repo itself
+            mainFileRelative: relative path to the main file in the repo
 
-        Return: name of the temporary file
-        '''
+        Returns:
+            name of the temporary file
+        """
         version = f"version {sha1}" if sha1 else "current version"
         print(f"{messagePrefix}Flattening {mainFileRelative} in {version}")
         with self.gitRepo.worktree(sha1) as workDir:
@@ -235,7 +301,7 @@ class Diff():
                 yield pl.Path(texFile.name)
 
     def makeDiff(self) -> None:
-        '''Create the diff PDF file in the directory this script was called from'''
+        """Create the diff PDF file in the directory this script was called from"""
 
         # Make LaTeX diff
         with (self._flatFile(self.oldSha1, self.oldMainFileRelative) as oldFlatInput,
@@ -292,6 +358,8 @@ class Diff():
 
 
 def main() -> None:
+    """Entry point"""
+
     try:
         config = Configuration()
         gitRepo = GitRepo(config)

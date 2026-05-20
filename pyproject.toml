@@ -37,6 +37,9 @@ maintainers = [
 requires-python = ">=3.12"
 dependencies = [
     "beartype",
+    "mkdocs",
+    "mkdocstrings[python]",
+    "pymdown-extensions",
     "icecream",
 ]
 

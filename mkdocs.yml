@@ -1,0 +1,34 @@
+site_name: gitlatexdiff
+repo_url: https://github.com/bjhend/gitlatexdiff
+# This makes the links in the static site work locally
+use_directory_urls: false
+
+# To include readme etc. from the base dir we add markwodn files including the
+# base files as pymdown snippet.
+nav:
+  - 'index.md'
+  - Changelog: 'CHANGELOG.md'
+  - License: 'LICENSE.md'
+  - Reference:
+    - 'gitlatexdiff': reference/make_diff.md
+    - 'Flatten LaTeX': reference/flatten_latex.md
+
+theme:
+  name: readthedocs
+  highlightjs: true
+  hljs_languages:
+    - python
+  features:
+    - navigation.tabs
+    - toc.follow
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+
+markdown_extensions:
+  # We use pymdown snippets to include readme etc. from the base dir
+  - pymdownx.snippets:
+      base_path: .
+

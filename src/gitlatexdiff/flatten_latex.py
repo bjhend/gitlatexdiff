@@ -37,28 +37,29 @@ class _Config():
     """Configuration values"""
 
     texExtension = '.tex'
-    # regular expression to find input/include commands which are not commented out
+
+    # Regular expression template to find LaTeX commands which are not commented out
     # the first part only allows '%' with an odd number of leading backslashes
+    _commandPattern = r"^(?P<before>(?:[^%\\]|\\.)*)\\{cmd}{{(?P<filename>.*?)}}(?P<after>.*)"
+    inputRe = re.compile(_commandPattern.format(cmd='input'))
+    includeRe = re.compile(_commandPattern.format(cmd='include'))
+    includeOnlyRe = re.compile(_commandPattern.format(cmd='includeonly'))
 
-    commandPattern = r"^(?P<before>(?:[^%\\]|\\.)*)\\{cmd}{{(?P<filename>.*?)}}(?P<after>.*)"
-    inputRe = re.compile(commandPattern.format(cmd='input'))
-    includeRe = re.compile(commandPattern.format(cmd='include'))
-    includeOnlyRe = re.compile(commandPattern.format(cmd='includeonly'))
 
-
-def flattenRecursion(inFile:typing.TextIO, outFile:typing.TextIO,
+def _flattenRecursion(inFile:typing.TextIO, outFile:typing.TextIO,
                      includeOnly:list[str]|None=None, isResolveInclude:bool=True) -> None:
     """Copy inFile to outFile recursively inserting inputs and includes
 
-    According to LaTeX \input is always inserted but \include is more special.
-    \include cannot be nested and if \includeonly is given in the preamble
-    includes are limited to those files. In addition \include is surrounded by
-    \clearpage.
+    According to LaTeX `\\input` is always inserted but `\\include` is more special.
+    `\\include` cannot be nested and if `\\includeonly` is given in the preamble
+    includes are limited to those files. In addition `\\include` is surrounded by
+    `\\clearpage`.
 
-    inFile:           readable text file object to parse
-    outFile:          writable text file object to write result into
-    includeOnly:      list of filenames to include found in \includeonly command
-    isResolveInclude: True if \include should be resolved to avoid nested inclusion
+    Args:
+        inFile:           readable text file object to parse
+        outFile:          writable text file object to write result into
+        includeOnly:      list of filenames to include found in `\\includeonly` command
+        isResolveInclude: True if `\\include` should be resolved to avoid nested inclusion
     """
     config = _Config()
 
@@ -88,7 +89,7 @@ def flattenRecursion(inFile:typing.TextIO, outFile:typing.TextIO,
         outFile.write(f"% ========= begin {label} of {fileName} ==========\n")
         outFile.write(surround)
         with open(fileName) as file:
-            flattenRecursion(file, outFile, includeOnly=includeOnly,
+            _flattenRecursion(file, outFile, includeOnly=includeOnly,
                              isResolveInclude=newIsResolveInclude)
         outFile.write(surround)
         outFile.write(f"% ========= end {label} of {fileName} ==========\n")
@@ -120,8 +121,13 @@ def flattenRecursion(inFile:typing.TextIO, outFile:typing.TextIO,
 
 
 def flatten(inFile:typing.TextIO, outFile:typing.TextIO) -> None:
-    """Start recursively resolving includes"""
-    flattenRecursion(inFile, outFile)
+    """Start recursively resolving inputs/includes
+
+    Args:
+        inFile:  An open read text file object to read input LaTeX code from
+        OutFile: An open write text file object to write flattened LaTeX code to
+    """
+    _flattenRecursion(inFile, outFile)
 
 
 def flattenFiles(inPath:pl.Path, outPath:pl.Path|None=None) -> None:
@@ -132,10 +138,12 @@ def flattenFiles(inPath:pl.Path, outPath:pl.Path|None=None) -> None:
     We require inPath instead of defaulting to stdin, because we need
     its directory to resolve relative input/include paths in the LaTeX code
 
-    inPath:  name of input file
-    outPath: optional name of output file, if omitted stdout is used instead
+    Args:
+        inPath:  path of input file
+        outPath: optional name of output file, if omitted stdout is used instead
 
-    Raises OSError if a file cannot be opened.
+    Raises:
+        OSError: if a file cannot be opened.
     """
     cwd = pl.Path.cwd()
     try:

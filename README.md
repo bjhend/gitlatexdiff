@@ -1,14 +1,23 @@
-
 # Git-LaTeX-Diff
 
 Make a rendered diff of two versions of a LaTeX document.
 
 
+### License
+
+See [License](LICENSE.md)
+
+
+### Changelog
+
+See [Changelog](CHANGELOG.md)
+
+
 ## Purpose
 
-[`latexdiff`](https://www.ctan.org/pkg/latexdiff) is a LaTeX tool to create a diff of two LaTeX documents, which shows deletions and additions as red strike-through text and additions as blue underlined text when compiled to PDF. However, `latexdiff` has some major limitations.
+[*latexdiff*](https://www.ctan.org/pkg/latexdiff) is a LaTeX tool to create a diff of two LaTeX documents, which shows deletions and additions as red strike-through text and additions as blue underlined text when compiled to PDF. However, *latexdiff* has some major limitations.
 
-This Python script `gitlatexdiff` extends `latexdiff` in several ways:
+To overcome the limitations, this Python script extends *latexdiff* in several ways:
 
 * It works with a Git repo such that it compares the current state or a given commit with an earlier commit
 * It resolves `\include` and `\input` commands like LaTeX does
@@ -106,6 +115,20 @@ Call `uv run flattenlatex --help` to see its options to set input and output fil
 
 
 
+## Documentation
+
+Documentation is created with [MkDocs](https://www.mkdocs.org).
+
+The following commands called from the base directory create the documentation:
+
+* `uv run mkdocs serve` - Start the docs server.
+* `uv run mkdocs build` - Build static documentation in subfolder `site/`
+* `uv run mkdocs --help` - Print help message and exit.
+
+
+
 ## Contributing
 
 Create issues or a pull requests to point out bugs or improvements.
+
+
