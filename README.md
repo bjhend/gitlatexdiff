@@ -48,7 +48,7 @@ In addition the `\include` and `\input` resolving itself can be called as standa
 
 The easiest way is to apply the Python tool `uv`, which we describe here. Likely `poetry` will work as well.
 
-Change to the directory where you cloned the gitlatexdiff project and call
+Change to the directory where you cloned the gitlatexdiff-original project and call
 
 ```bash
 uv sync
@@ -59,7 +59,7 @@ to install all dependencies and create a virtual environment.
 To run the script call
 
 ```bash
-uv run gitlatexdiff <options>
+uv run gitlatexdiff-original <options>
 ```
 
 To run the script to flatten a LeTeX file standalone call
@@ -82,23 +82,23 @@ Note, that in this case the `'append-textcmd=hint.*,todo'` is the default for op
 
 ### Options
 
-Call `gitlatexdiff` with option `--help` to get the current list of command line options and their defaults if applicable.
+Call `gitlatexdiff-original` with option `--help` to get the current list of command line options and their defaults if applicable.
 
 #### Mandatory options
 
-* `-m`, `--main`: Name of the main LaTeX file whose versions should be compared. It has to reside in the respective Git repository containing the versions to compare. May be given with path if `gitlatexdiff` is called from outside the LaTeX project directory.
+* `-m`, `--main`: Name of the main LaTeX file whose versions should be compared. It has to reside in the respective Git repository containing the versions to compare. May be given with path if `gitlatexdiff-original` is called from outside the LaTeX project directory.
 
 #### Optional
 
 All other command line options are optional.
 
-Call `gitlatexdiff --help` to see the defaults of the following options.
+Call `gitlatexdiff-original --help` to see the defaults of the following options.
 
 * `-n`, `--new-rev`: Newer revision to compare with. If not given the current state of the work files is used, which will be the HEAD revision if all files are committed or else the work files.
 * `-o`, `--old-rev`: Older revision to compare with. If not given either the revision before `--new-rev` is used or the HEAD revision if `--new-rev` is also not given and there are uncommitted changes.
 * `--old-main`: Name of the old main LaTeX file which should be compared. Defaults to `--main`.
 * `-d`, `--diff-name`: Name of the final diff file. '`.pdf`' will be appended if necessary. The log file of the last `pdflatex` call will be stored beside this file.
-* `-w`, `--overwrite`: If not given `gitlatexdiff` refuses to overwite an existing diff file.
+* `-w`, `--overwrite`: If not given `gitlatexdiff-original` refuses to overwite an existing diff file.
 * `--num-rounds`: Number of calls to `pdflatex` when compiling the diff.
 
 The following options are passed to `latexdiff` or `pdflatex` respectively. For technical reasons values have to be given without leading dashes. Dashes are prepended as required by the respective command.
@@ -109,7 +109,7 @@ The following options are passed to `latexdiff` or `pdflatex` respectively. For 
 
 ### `flattenlatex`
 
-Python module to recusively resolve `\include` and `\input` commands in a LaTeX document. `gitlatexdiff` uses it on both versions of the input file.
+Python module to recusively resolve `\include` and `\input` commands in a LaTeX document. `gitlatexdiff-original` uses it on both versions of the input file.
 
 Call `uv run flattenlatex --help` to see its options to set input and output file. The input file is mandatory, because included files are drawn from its directory. The output file is optional, if omitted, `stdout` will be used.
 

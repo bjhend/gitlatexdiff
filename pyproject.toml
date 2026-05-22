@@ -45,14 +45,14 @@ dependencies = [
 
 
 [project.urls]
-Repository = "https://github.com/bjhend/gitlatexdiff"
-Issues = "https://github.com/bjhend/gitlatexdiff/issues"
-Changelog = "https://github.com/bjhend/gitlatexdiff/blob/main/CHANGELOG.md"
+Repository = "https://github.com/bjhend/gitlatexdiff-original"
+Issues = "https://github.com/bjhend/gitlatexdiff-original/issues"
+Changelog = "https://github.com/bjhend/gitlatexdiff-original/blob/main/CHANGELOG.md"
 
 
 [project.scripts]
-gitlatexdiff = "gitlatexdiff:main"
-flattenlatex = "gitlatexdiff:flattenCommand"
+gitlatexdiff-original = "gitlatexdiff_original:main"
+flattenlatex = "gitlatexdiff_original:flattenCommand"
 
 
 [build-system]
