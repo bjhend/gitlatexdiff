@@ -1,4 +1,4 @@
-# Git-LaTeX-Diff
+# Git-LaTeX-Diff Original
 
 Make a rendered diff of two versions of a LaTeX document.
 
@@ -131,4 +131,8 @@ The following commands called from the base directory create the documentation:
 
 Create issues or a pull requests to point out bugs or improvements.
 
+
+## A note on the name
+
+This project is called *Git-LaTeX-Diff Original* or `gitlatexdiff-original`, because the project name *gitlatexdiff* is already in use on [PyPI](https://pypi.org) for a similar [package](https://pypi.org/project/gitlatexdiff/) that was independently developed. It is called *original* due to the fact that the first publication of this project on GitHub is older.
 

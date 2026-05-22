@@ -16,7 +16,7 @@
 
 
 [project]
-name = "gitlatexdiff"
+name = "gitlatexdiff-original"
 version = "0.2.0"
 description = "Make diff of two versions of a LaTeX document in a Git repo"
 readme = "README.md"
