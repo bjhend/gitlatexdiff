@@ -1,6 +1,13 @@
 
 # Changelog
 
+
+## 0.3.0
+
+* Rename project to gitlatexdiff-original to avoid name clash on PyPI
+* Add MkDocs configuration and improve documentation
+
+
 ## 0.2.0
 
 * Refactoring to modern Python standards
