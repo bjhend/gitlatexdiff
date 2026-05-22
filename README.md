@@ -76,6 +76,7 @@ The following options are passed to `latexdiff` or `pdflatex` respectively. For 
 
 * `-l`, `--latexdiff-options`: Arbitrary number of options passed to `latexdiff` call. Pass without any value to turn off the default.
 * `-p`, `--pdflatex-options`: Arbitrary number of options passed to `pdflatex` call. Pass without any value to turn off the default.
+* `--version`: Print version and exit
 
 
 ### Tips

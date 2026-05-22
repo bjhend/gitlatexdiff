@@ -28,6 +28,7 @@ import tempfile
 import pathlib as pl
 import contextlib
 import typing
+import importlib.metadata
 from collections.abc import Generator
 import shutil
 from icecream import ic
@@ -126,6 +127,7 @@ class Configuration():
                             help='Options passed to latexdiff without leading dashes (default: %(default)s)')
         parser.add_argument('-p', '--pdflatex-options', nargs='*', default=defaultPdflatexOptions,
                             help='Options passed to pdflatex without leading dashes (default: %(default)s)')
+        parser.add_argument('--version', action='version', version=importlib.metadata.version('gitlatexdiff-original'))
 
         return parser.parse_args()
 
