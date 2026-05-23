@@ -2,7 +2,7 @@
 # Changelog
 
 
-## Next
+## 0.4.0
 
 * Add option `--version`
 * Fix: documentation build broken due to renaming
