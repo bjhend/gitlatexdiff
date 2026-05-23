@@ -1,5 +1,5 @@
 site_name: gitlatexdiff
-repo_url: https://github.com/bjhend/gitlatexdiff
+repo_url: https://github.com/bjhend/gitlatexdiff-original
 # This makes the links in the static site work locally
 use_directory_urls: false
 
@@ -10,7 +10,7 @@ nav:
   - Changelog: 'CHANGELOG.md'
   - License: 'LICENSE.md'
   - Reference:
-    - 'gitlatexdiff': reference/make_diff.md
+    - 'gitlatexdiff-original': reference/main.md
     - 'Flatten LaTeX': reference/flatten_latex.md
 
 theme:
