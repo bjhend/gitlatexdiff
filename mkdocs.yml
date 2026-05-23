@@ -1,4 +1,4 @@
-site_name: gitlatexdiff
+site_name: gitlatexdiff-original
 repo_url: https://github.com/bjhend/gitlatexdiff-original
 # This makes the links in the static site work locally
 use_directory_urls: false

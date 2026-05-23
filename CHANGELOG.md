@@ -1,6 +1,10 @@
 
 # Changelog
 
+## Next
+
+* Fix: site-name of docs does not follow renaming
+
 
 ## 0.4.0
 
