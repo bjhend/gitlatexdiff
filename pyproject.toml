@@ -46,6 +46,7 @@ dependencies = [
 
 [project.urls]
 Repository = "https://github.com/bjhend/gitlatexdiff-original"
+Documentation = "https://gitlatexdiff-original.readthedocs.io"
 Issues = "https://github.com/bjhend/gitlatexdiff-original/issues"
 Changelog = "https://github.com/bjhend/gitlatexdiff-original/blob/main/CHANGELOG.md"
 

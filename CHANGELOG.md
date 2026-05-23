@@ -2,6 +2,13 @@
 # Changelog
 
 
+## Next
+
+* Add option `--version`
+* Fix: documentation build broken due to renaming
+* Made documentation available on Read the Docs
+
+
 ## 0.3.0
 
 * Rename project to gitlatexdiff-original to avoid name clash on PyPI

@@ -35,6 +35,12 @@ In addition the `\include` and `\input` resolving itself can be called as standa
 
 
 
+## Documentation
+
+Complete documentation is available on [Read the Docs](https://gitlatexdiff-original.readthedocs.io).
+
+
+
 ## Installation
 
 ### Prerequesites
@@ -100,24 +106,18 @@ Call `flattenlatex --help` to see its options to set the input and output file. 
 
 
 
-## Documentation
-
-Documentation is created with [MkDocs](https://www.mkdocs.org).
-
-The following commands called from the base directory create the documentation:
-
-* `mkdocs build`: Build static documentation in subfolder `site/`. Open `site/index.html` in a browser to see the docs.
-* `mkdocs serve`: Start the docs server. See its messages on how to open the provided website.
-* `mkdocs --help`: Print help message and exit.
-
-If `mkdocs` is not available or throws errors you may create a virtual environment with `uv sync` (or `poetry sync`) and call MkDocs with `uv run mkdocs` (or `poetry run mkdocs`).
-
-
 ## Contributing
 
 Create issues or a pull requests to point out bugs or improvements.
 
-We have used `uv` as development and packaging tool so you may use `uv sync` to create a virtual environment with all required packages and execute the scripts with `uv run`. Likely `poetry` will work as well.
+We use [`uv`](https://docs.astral.sh/uv/) as development and packaging tool so you may use `uv sync` to create a virtual environment with all required packages and execute the scripts with `uv run`. Likely [`poetry`](https://python-poetry.org/) will work as well.
+
+When contributing a pull request please check these points in addition to your tests:
+
+* Add a short description in [Changelog](CHANGELOG.md) under *Next*
+* Does the documentation still build and documents your changes?
+
+Documentation is built with [MkDocs](https://www.mkdocs.org). Call `uv run mkdocs build --clean` from the base directory and open `site/index.html` in a browser to check the results. You may use the [MKDocs server](https://www.mkdocs.org/user-guide/cli/#mkdocs-serve) to see your doc changes live (note: opposed to the MkDocs documentation you have to give option `--livereload` besides `--watch` to make it work).
 
 
 ## A note on the name
