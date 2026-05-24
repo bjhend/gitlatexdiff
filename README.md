@@ -2,19 +2,6 @@
 
 Make a rendered diff of two versions of a LaTeX document.
 
-
-### License
-
-See [License](LICENSE.md)
-
-
-### Changelog
-
-See [Changelog](CHANGELOG.md)
-
-
-## Purpose
-
 [*latexdiff*](https://www.ctan.org/pkg/latexdiff) is a LaTeX tool to create a diff of two LaTeX documents, which shows deletions and additions as red strike-through text and additions as blue underlined text when compiled to PDF. However, *latexdiff* has some major limitations.
 
 To overcome the limitations, this Python script extends *latexdiff* in several ways:
@@ -26,18 +13,21 @@ To overcome the limitations, this Python script extends *latexdiff* in several w
 In addition the `\include` and `\input` resolving itself can be called as standalone script.
 
 
-
-## Caveats
+### Caveats
 
 * While `\include` and `\input` are resolved from the respective git revisions, other includes like figures are resolved when compiling the diff. This is done in the new revision. So if the old version includes figures that are missing or renamed in the new revision they will be missing in the diff PDF as well.
 * There is no diff of the bibliography and other generated parts.
 * When using uncommitted changes as new version the rendering has to take place in the documents work directory. This may leave temporary files and have other unexpected side effects. However, if everything is committed or dedicated Git revisions are compared all processing is done in temporary directories that are cleaned up.
 
 
-
-## Documentation
+### Documentation
 
 Complete documentation is available on [Read the Docs](https://gitlatexdiff-original.readthedocs.io).
+
+
+### Changelog
+
+See `CHANGELOG.md`
 
 
 
@@ -77,15 +67,15 @@ Call `gitlatexdiff-original` with option `--help` to get the current list of com
 * `-d`, `--diff-name`: Name of the final diff file. '`.pdf`' will be appended if necessary. The log file of the last `pdflatex` call will be stored beside this file.
 * `-w`, `--overwrite`: If not given `gitlatexdiff-original` refuses to overwite an existing diff file.
 * `--num-rounds`: Number of calls to `pdflatex` when compiling the diff.
+* `--version`: Print version and exit
 
 The following options are passed to `latexdiff` or `pdflatex` respectively. For technical reasons values have to be given without leading dashes. Dashes are prepended as required by the respective command.
 
 * `-l`, `--latexdiff-options`: Arbitrary number of options passed to `latexdiff` call. Pass without any value to turn off the default.
 * `-p`, `--pdflatex-options`: Arbitrary number of options passed to `pdflatex` call. Pass without any value to turn off the default.
-* `--version`: Print version and exit
 
 
-### Tips
+### Troubleshooting
 
 If the diff sources cannot be compiled check the log file for problems with `\DIF...` commands and see which original LaTeX command caused it. Then you may exclude that command from the diff with for example:
 
