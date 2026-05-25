@@ -7,6 +7,9 @@
 * Extract flatten_latex to its own package [latex-include](https://pypi.org/project/latex-include/)
 * Don't export the internal `main` function
 * Many documentation improvements
+* Catch missing executable and provide meaningful error message
+* Catch non-existing main file or Git repo
+* Catch non-existing revisions
 
 
 ## 0.4.0 -- 2026-05-23

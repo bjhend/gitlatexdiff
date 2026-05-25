@@ -47,6 +47,17 @@ defaultLatexdiffOptions = ['append-textcmd=hint.*,todo']
 defaultPdflatexOptions = ['interaction=batchmode']
 
 
+
+class MissingExecutableError(RuntimeError):
+    """Exception raised by callCommand if executable cannot be found
+
+    Provides name of missing executable in attribute `executable`.
+    """
+    def __init__(self, executable:str):
+        super().__init__(f"Cannot find executable '{executable}'. Did you install it?")
+        self.executable = executable
+
+
 def callCommand(args:list[str], cwd:pl.Path|None=None) -> str:
     """Call args as shell command and return its stdout (NOT stderr)
 
@@ -54,14 +65,21 @@ def callCommand(args:list[str], cwd:pl.Path|None=None) -> str:
         cwd: optional working directory
 
     Raises:
+        MissingExecutableError:        if executable cannot be found
         subprocess.CalledProcessError: if the command returns with non-zero
                                        exit code
+        FileNotFoundError:             if `cwd` does not exist
 
     Returns:
         stdout of the command
     """
-    result = subprocess.run(args, cwd=cwd, stdout=subprocess.PIPE, check=True)
-    return result.stdout.decode().strip()
+    try:
+        result = subprocess.run(args, cwd=cwd, stdout=subprocess.PIPE, check=True)
+        return result.stdout.decode().strip()
+    except FileNotFoundError as ex:
+        if ex.filename == args[0]:
+            raise MissingExecutableError(args[0])
+        raise
 
 
 class Configuration():
@@ -81,6 +99,8 @@ class Configuration():
             print(f"--num-rounds set to {self.numTexRounds}, but must be at least 1")
             exit(1)
 
+        # We cannot check existence of (old) main file here, because they may
+        # only exist in the respective revisions.
         self.mainFileAbs = args.main.resolve().with_suffix(latexExtension)
         self.oldMainFileAbs = args.old_main.resolve().with_suffix(latexExtension) if args.old_main else self.mainFileAbs
         self.diffNameAbs = args.diff_name.resolve().with_suffix(pdfExtension)
@@ -145,23 +165,39 @@ class GitRepo():
         Args:
             config: configuration with main file path
         """
-        self.repoDir = pl.Path(self._callGit(['rev-parse', '--show-toplevel'], config.mainFileAbs.parent))
+
+        # Find toplevel Git repo dir
+        try:
+            # config.mainFileAbs and its path inside the Git repo may only exist in
+            # the new revision to compare but not the current repo state. So we go up
+            # the dir hierarchy until we find an existing dir and then ask Git to find
+            # the toplevel of the Git repo.
+            insideRepoDir = config.mainFileAbs.parent
+            while not insideRepoDir.is_dir():
+                insideRepoDir = insideRepoDir.parent
+            self.repoDir = pl.Path(self._callGit(['rev-parse', '--show-toplevel'], insideRepoDir))
+        except Exception as ex:
+            print(f"Cannot determine Git repo to which main file '{config.mainFileAbs}' belongs")
+            exit(1)
 
     def getSha1(self, committish:str) -> str:
         """Return SHA1 of committish
+
+        If committish cannot be resolved to SHA1 exit is called.
 
         Args:
             committish: any string that Git recognizes as a commit reference: HEAD,
                         branch, tag, or their parents
 
         Returns:
-            SHA1 of the referenced commit or `None` if it cannot be resolved
+            SHA1 of the referenced commit
         """
 
         try:
             return self._callGit(['rev-parse', committish])
         except subprocess.CalledProcessError:
-            return None
+            print(f"Cannot resolve commit reference '{committish}' to SHA1")
+            exit(1)
 
     def isDirty(self) -> bool:
         """Check if uncommitted changes or new non-ignored files are present
@@ -288,13 +324,19 @@ class Diff():
         version = f"version {sha1}" if sha1 else "current version"
         print(f"{messagePrefix}Resolving {mainFileRelative} in {version}")
         with self.gitRepo.worktree(sha1) as workDir:
-            mainFileDir = (workDir / mainFileRelative).parent
+            mainFilePath = workDir / mainFileRelative
+            if not mainFilePath.is_file():
+                version = f"revision {sha1}" if sha1 else "current state"
+                print(f"LaTeX file '{mainFileRelative}' does not exist in {version} of '{self.gitRepo.repoDir}'")
+                exit(1)
+
+            mainFileDir = mainFilePath.parent
             with tempfile.NamedTemporaryFile(mode='w',
                                         prefix='resolved_',
                                         suffix=latexExtension,
                                         dir=mainFileDir,
                                         delete_on_close=False) as texFile:
-                with (workDir / mainFileRelative).open() as mainFile:
+                with mainFilePath.open() as mainFile:
                     li.latexInclude(mainFile, typing.cast(typing.TextIO, texFile.file), mainFileDir)
                 texFile.close()
                 yield pl.Path(texFile.name)
