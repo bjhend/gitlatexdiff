@@ -5,6 +5,7 @@
 
 * Fix: site-name of docs does not follow renaming
 * Extract flatten_latex to its own package [latex-include](https://pypi.org/project/latex-include/)
+* Don't export the internal `main` function
 
 
 ## 0.4.0

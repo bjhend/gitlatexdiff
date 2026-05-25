@@ -53,7 +53,7 @@ Changelog = "https://github.com/bjhend/gitlatexdiff-original/blob/main/CHANGELOG
 
 
 [project.scripts]
-gitlatexdiff-original = "gitlatexdiff_original:main"
+gitlatexdiff-original = "gitlatexdiff_original.main:main"
 
 
 [build-system]
