@@ -96,15 +96,6 @@ Here, LaTeX commands `\title`, `\chapter`, and all ending in `section` are exclu
 Note, that in this case the `'append-textcmd=hint.*,todo'` is the default for option `-l`, which needs to be set explicitely if `-l` is given.
 
 
-### `flattenlatex`
-
-`flattenlatex` is an additional Python script to resolve `\include` and recursively `\input` commands in a LaTeX document. `gitlatexdiff-original` uses it on both versions of the input file.
-
-`flattenlatex` resolves `\include` only one level deep and respects `\includeonly` if present like LaTeX itself does.
-
-Call `flattenlatex --help` to see its options to set the input and output file. The input file is mandatory, because included files are drawn from its directory. The output file is optional, if omitted, `stdout` will be used.
-
-
 
 ## Contributing
 

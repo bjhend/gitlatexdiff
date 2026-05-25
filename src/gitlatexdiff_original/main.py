@@ -32,7 +32,7 @@ import importlib.metadata
 from collections.abc import Generator
 import shutil
 from icecream import ic
-from . import flatten_latex
+import latex_include as li
 
 
 latexExtension = '.tex'
@@ -268,16 +268,14 @@ class Diff():
                 self.oldSha1 = self.gitRepo.getSha1('HEAD')
 
     @contextlib.contextmanager
-    def _flatFile(self, sha1:str|None, mainFileRelative:pl.Path) -> Generator[pl.Path]:
-        """Flatten mainFileRelative in the given sha1 revision and return its path
+    def _resolveFile(self, sha1:str|None, mainFileRelative:pl.Path) -> Generator[pl.Path]:
+        """Resolve includes in mainFileRelative in the given sha1 revision and return its path
 
         This method is a contextmanager. So it needs to be called in a
         with-statement. On leaving the context the returned file and the worktree
         will be removed.
 
-        Flatten resolves all include/input commands.
-
-        If sha1 is not None flattening is done in an exclusive worktree to avoid
+        If sha1 is not None resolving is done in an exclusive worktree to avoid
         interfering with the repo.
 
         Args:
@@ -288,17 +286,16 @@ class Diff():
             name of the temporary file
         """
         version = f"version {sha1}" if sha1 else "current version"
-        print(f"{messagePrefix}Flattening {mainFileRelative} in {version}")
+        print(f"{messagePrefix}Resolving {mainFileRelative} in {version}")
         with self.gitRepo.worktree(sha1) as workDir:
-            mainFileDir = workDir / mainFileRelative.parent
-            os.chdir(mainFileDir)
+            mainFileDir = (workDir / mainFileRelative).parent
             with tempfile.NamedTemporaryFile(mode='w',
-                                        prefix='flattened_',
+                                        prefix='resolved_',
                                         suffix=latexExtension,
                                         dir=mainFileDir,
                                         delete_on_close=False) as texFile:
                 with (workDir / mainFileRelative).open() as mainFile:
-                    flatten_latex.flatten(mainFile, typing.cast(typing.TextIO, texFile.file))
+                    li.latexInclude(mainFile, typing.cast(typing.TextIO, texFile.file), mainFileDir)
                 texFile.close()
                 yield pl.Path(texFile.name)
 
@@ -306,8 +303,8 @@ class Diff():
         """Create the diff PDF file in the directory this script was called from"""
 
         # Make LaTeX diff
-        with (self._flatFile(self.oldSha1, self.oldMainFileRelative) as oldFlatInput,
-              self._flatFile(self.newSha1, self.mainFileRelative) as newFlatInput):
+        with (self._resolveFile(self.oldSha1, self.oldMainFileRelative) as oldFlatInput,
+              self._resolveFile(self.newSha1, self.mainFileRelative) as newFlatInput):
             print(f"{messagePrefix}Create diff")
             diffTex = callCommand(['latexdiff'] + self.config.latexdiffOptions
                                   + [str(oldFlatInput), str(newFlatInput)])

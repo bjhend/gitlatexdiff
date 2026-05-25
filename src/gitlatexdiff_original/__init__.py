@@ -21,5 +21,4 @@ beartype_this_package()
 
 
 from .main import main
-from .flatten_latex import flattenCommand
 

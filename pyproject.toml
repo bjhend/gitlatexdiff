@@ -36,6 +36,7 @@ maintainers = [
 
 requires-python = ">=3.12"
 dependencies = [
+    "latex-include",
     "beartype",
     "mkdocs",
     "mkdocstrings[python]",
@@ -53,7 +54,6 @@ Changelog = "https://github.com/bjhend/gitlatexdiff-original/blob/main/CHANGELOG
 
 [project.scripts]
 gitlatexdiff-original = "gitlatexdiff_original:main"
-flattenlatex = "gitlatexdiff_original:flattenCommand"
 
 
 [build-system]
